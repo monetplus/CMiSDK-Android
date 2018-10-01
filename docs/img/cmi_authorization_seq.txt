@@ -1,0 +1,39 @@
+actor User
+participant "3rd p. app" as tpa
+participant "CMi TP" as CMi
+participant "OS" as os
+participant "CASE mobile" as CM
+participant MEP
+participant "3rd p. Backend" as Back
+
+
+'CMi transaction flow'
+User -> tpa: 'create transaction'
+tpa -> Back: createTrX()
+Back -> MEP: createTrX()
+MEP --> Back: :mepId
+Back --> tpa: :mepId
+tpa -> CMi: createTransactionUrl(mepId):url
+tpa -> os: open(url)
+note over os: If .wellknown file is valid
+os -> CM: open(url)
+CM -> CM: parseUrl(url):request
+CM -> MEP: getTrx(request)
+MEP --> CM :trx
+CM -> User: showTrx(trx)
+User -> CM: yes(PIN) / no()
+CM -> CM: sign(trx, PIN):signature
+CM -> MEP: approve(mepId, signature) / reject(mepId)
+MEP -> MEP: verifySignature(mepId, signature)
+MEP -> Back: notify
+MEP --> CM: :finished
+CM -> CM: createResponseUrl(request):url
+CM -> os: open(url)
+note over os: If .wellknown file is valid
+os -> tpa: open(url)
+tpa -> CMi: parseUrl(url):mepId
+tpa -> Back: getState(mepId)
+Back -> MEP: getState(mepId)
+MEP --> Back: :OK/NOK
+Back --> tpa: :OK/NOK
+tpa --> User: OK/NOK

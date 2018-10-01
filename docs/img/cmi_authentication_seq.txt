@@ -1,0 +1,35 @@
+actor User
+participant "3rd p. app" as tpa
+participant "CMi TP" as CMi
+participant "OS" as os
+participant "CASE mobile" as CM
+participant MEP
+participant "3rd p. Backend" as Back
+
+'CMi login flow
+User -> tpa: 'click on login btn'
+tpa -> CMi: createLoginUrl():url
+tpa -> os: open(url)
+note over os: If .wellknown file is valid
+os -> CM: open(url)
+CM -> CM: parseUrl(url):request
+CM -> CM: createLoginTrx(request):loginTrx
+CM -> User: showTrx:loginTrx
+User -> CM: Yes(PIN)
+CM -> CM: sign(loginTrx, PIN):signature
+CM -> MEP: loginRequest(request, loginTrx, signature)
+MEP -> MEP: verifyTrxSignature(request, loginTrx, signature)
+MEP -> MEP: createToken(request)
+MEP --> CM: :token, redirectUri
+CM -> CM: createResponseUrl(request, token, redirectUri):url
+CM -> os: open(url)
+note over os: If .wellknown file is valid
+os -> tpa: open(url)
+tpa -> CMi: parseUrl(url):token
+tpa --> User: 'Login-OK'
+loop
+tpa -> Back: call resource(token, parameters)
+Back -> MEP: validate(token,resource)
+Back -> Back: processRequest(..)
+tpa <-- Back: :resource
+end

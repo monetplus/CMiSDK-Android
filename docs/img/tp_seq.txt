@@ -1,0 +1,46 @@
+title CMi 3rd party application
+  
+participant OS as os
+participant "3rd p. app" as tpa
+box "CMi TP" #LightBlue
+    participant Setting as set
+end box
+box "CMi Core" #LightGreen
+    participant "Url Parser" as pars
+end box
+ 
+==Initialication==
+ 
+tpa -> tpa: getConfig():config
+tpa -> set: setConfig(config)
+ 
+==Request==
+ 
+tpa -> tpa: getCmiData():data
+tpa -> tpa: createParamInstance(data):params
+note right
+    Params types:
+      - OauthParams
+      - OpenIdConnectParams
+      - TransactionParams
+end note
+tpa -> tpa: serializeParams(params):map
+tpa -> tpa: createCMiUrlInstance(host, path, map):cmiUrl
+tpa -> pars: toUri(cmiUrl):uri
+tpa -> os: openUri(uri)
+ 
+==Response==
+os -> tpa: onReceivedUri(uri)
+note right: OS specific
+tpa -> pars: isCmiUri(uri)
+note over tpa: Stop if not cmi uri
+tpa -> pars: parse(uri):cmiUrl
+tpa -> tpa: validateHost(cmiUrl.host)
+tpa -> tpa: assembleResult(cmiUrl):result
+tpa -> tpa: checkResultType(result)
+note right
+    Result types:
+      - LoginResult
+      - TransactionResult
+end note
+tpa -> tpa: processResult(result)

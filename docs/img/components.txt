@@ -1,0 +1,54 @@
+package "CMi" {
+    
+    [CASE mobile]
+      
+    package "CMi CM" {
+        [Req+Res Processing - CM] as rrcm
+        () "Request parsing" as reqCm
+        () "Response sending" as resCm
+        reqCm - rrcm
+        rrcm - resCm
+        
+        [Auth Gtw Handler]
+        () "Net. task" as atask
+         atask - [Auth Gtw Handler]
+        
+        [Settings - CM]
+        () "Config" as cfgCm
+        cfgCm - [Settings - CM]
+    }
+    
+    package "CMi Core" {
+        [URL Parser]
+        [Exceptions]
+        () "Parsing" as pars
+        
+        [URL Parser] - pars
+        pars - [Exceptions]
+        
+    }
+    
+    package "CMi TP" {
+        [Req+Res processing - TP] as rrtp
+        
+        () "Request sending" as reqTp
+        () "Response processing" as resTp
+        
+        reqTp - rrtp
+        rrtp - resTp
+        
+        [Settings - Tp]
+        () "Config" as cfgTp
+        cfgTp - [Settings - Tp]
+    }
+    
+    [3rd party application] ..> pars
+    [3rd party application] ..> cfgTp
+    resTp <.. [3rd party application]
+    reqTp <.. [3rd party application]
+    
+    pars <.. [CASE mobile]
+    [CASE mobile] ..> atask
+    [CASE mobile] ..> reqCm
+    [CASE mobile] ..> resCm
+    [CASE mobile] ..> cfgCm
