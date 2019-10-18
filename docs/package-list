@@ -1,3 +1,7 @@
+com.aheaditec.cmi.commons
+com.aheaditec.cmi.commons.config
+com.aheaditec.cmi.commons.log
+com.aheaditec.cmi.commons.random
 com.aheaditec.cmi.core
 com.aheaditec.cmi.core.exception
 com.aheaditec.cmi.core.url
